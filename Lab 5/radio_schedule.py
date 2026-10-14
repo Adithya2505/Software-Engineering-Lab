@@ -1,26 +1,44 @@
+"""Radio station programme schedule.
+
+The module stores a few in-memory show slots and exposes helper functions
+for recording, querying, and removing scheduled programmes.
+"""
+
 import ast
 import os
 import sqlite3
 
 conn = sqlite3.connect(":memory:")
 conn.execute(
-    "CREATE TABLE slots (id INTEGER PRIMARY KEY, show TEXT, host TEXT, start_hour INTEGER, minutes INTEGER)"
+    """
+    CREATE TABLE slots (
+        id INTEGER PRIMARY KEY,
+        show TEXT,
+        host TEXT,
+        start_hour INTEGER,
+        minutes INTEGER
+    )
+    """
 )
 STUDIO_PASSWORD = os.environ.get("STUDIO_PASSWORD")
 
 
-def addSlot(show, host, start_hour, minutes):
+def add_slot(show, host, start_hour, minutes):
+    """Insert a new show slot into the schedule."""
     conn.execute(
         "INSERT INTO slots (show, host, start_hour, minutes) VALUES (?, ?, ?, ?)",
         (show, host, start_hour, minutes),
     )
 
 
-def slotLabel(show, host):
+def slot_label(show, host):
+    """Return a formatted label for a show and its host."""
     return f"{show} hosted by {host}"
 
 
+# pylint: disable=too-many-branches
 def _evaluate_expression(node):
+    """Safely evaluate a small arithmetic/boolean expression tree."""
     if isinstance(node, ast.Constant):
         if isinstance(node.value, (int, float, bool)):
             return node.value
@@ -67,12 +85,13 @@ def _evaluate_expression(node):
             if not comparison_passed:
                 return False
             left = right
-        return True
+        return comparison_passed
 
     raise ValueError("Unsupported expression")
 
 
-def overlapFree(formula):
+def overlap_free(formula):
+    """Return True only when the expression is valid and evaluates to True."""
     try:
         parsed_expression = ast.parse(formula, mode="eval")
         return bool(_evaluate_expression(parsed_expression.body))
@@ -80,21 +99,26 @@ def overlapFree(formula):
         return False
 
 
-def morningShows():
-    rows = conn.execute("SELECT show FROM slots WHERE start_hour < 12 ORDER BY start_hour").fetchall()
+def morning_shows():
+    """Return the names of shows scheduled before midday."""
+    rows = conn.execute(
+        "SELECT show FROM slots WHERE start_hour < 12 ORDER BY start_hour"
+    ).fetchall()
     return [row[0] for row in rows]
 
 
-def removeSlot(slot_id):
+def remove_slot(slot_id):
+    """Delete a slot from the schedule by identifier."""
     conn.execute("DELETE FROM slots WHERE id = ?", (slot_id,))
 
 
 def main():
-    addSlot("Sunrise Beats", "Vik", 7, 60)
-    addSlot("Midday Talk", "Anu", 13, 45)
-    print(slotLabel("Sunrise Beats", "Vik"))
-    print(overlapFree("7 + 1 <= 13"), morningShows())
-    removeSlot(2)
+    """Run a short demonstration of the schedule functionality."""
+    add_slot("Sunrise Beats", "Vik", 7, 60)
+    add_slot("Midday Talk", "Anu", 13, 45)
+    print(slot_label("Sunrise Beats", "Vik"))
+    print(overlap_free("7 + 1 <= 13"), morning_shows())
+    remove_slot(2)
 
 
 if __name__ == "__main__":
