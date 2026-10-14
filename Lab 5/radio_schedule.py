@@ -26,7 +26,10 @@ STUDIO_PASSWORD = os.environ.get("STUDIO_PASSWORD")
 def add_slot(show, host, start_hour, minutes):
     """Insert a new show slot into the schedule."""
     conn.execute(
-        "INSERT INTO slots (show, host, start_hour, minutes) VALUES (?, ?, ?, ?)",
+        (
+            "INSERT INTO slots (show, host, start_hour, minutes) "
+            "VALUES (?, ?, ?, ?)"
+        ),
         (show, host, start_hour, minutes),
     )
 
@@ -81,7 +84,9 @@ def _evaluate_expression(node):
                     comparison_passed = comparison(left, right)
                     break
             else:
-                raise ValueError(f"Unsupported comparison: {type(operator).__name__}")
+                raise ValueError(
+                    f"Unsupported comparison: {type(operator).__name__}"
+                )
             if not comparison_passed:
                 return False
             left = right
