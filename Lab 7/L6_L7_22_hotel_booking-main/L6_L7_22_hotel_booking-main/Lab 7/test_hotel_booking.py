@@ -1,11 +1,11 @@
-import pytest
-from hotel_booking import booking_cost, cancellation_refund, room_upgrade
+from hypothesis import given, strategies as st
+from hotel_booking import nights_stayed, room_floor, booking_label
 
-#Example test cases:
-def test_standard_two_nights():
-    assert booking_cost("standard", 2, 2, False) == 4000
+@given(st.text() | st.none())
+def test_nights_stayed_no_crash(s):
 
-def test_full_refund():
-    assert cancellation_refund(1000, 10, False) == 1000
+@given(st.text() | st.none())
+def test_room_floor_no_crash(s):
 
-#Write the rest of the test cases so that the code is 90- 100% covered.
+@given(st.text() | st.none())
+def test_booking_label_no_crash(s):
