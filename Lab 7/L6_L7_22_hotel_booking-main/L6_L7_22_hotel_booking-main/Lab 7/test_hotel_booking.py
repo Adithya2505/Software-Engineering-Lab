@@ -3,9 +3,15 @@ from hotel_booking import nights_stayed, room_floor, booking_label
 
 @given(st.text() | st.none())
 def test_nights_stayed_no_crash(s):
+    result = nights_stayed(s)
+    assert result is None or isinstance(result, int)
 
 @given(st.text() | st.none())
 def test_room_floor_no_crash(s):
+    result = room_floor(s)
+    assert result is None or isinstance(result, int)
 
 @given(st.text() | st.none())
 def test_booking_label_no_crash(s):
+    result = booking_label(s)
+    assert result is None or isinstance(result, str)

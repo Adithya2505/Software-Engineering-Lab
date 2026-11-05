@@ -1,13 +1,32 @@
 def nights_stayed(days):
-    check_in, check_out = days.split('-')
-    return int(check_out) - int(check_in)
+    if not isinstance(days, str):
+        return None
+
+    parts = days.split("-")
+    if len(parts) != 2 or not all(part.strip().isdigit() for part in parts):
+        return None
+
+    check_in, check_out = (int(part.strip()) for part in parts)
+    if check_out < check_in:
+        return None
+    return check_out - check_in
 
 def room_floor(room_code):
-    number = room_code.split('-')[1]
-    return int(number[0])
+    if not isinstance(room_code, str):
+        return None
+
+    parts = room_code.split("-")
+    if len(parts) != 2 or not parts[0].strip() or not parts[1].strip().isdigit():
+        return None
+    return int(parts[1].strip()[0])
 
 def booking_label(names_csv):
-    names = [n.strip() for n in names_csv.split(',')]
+    if not isinstance(names_csv, str):
+        return None
+
+    names = [name.strip() for name in names_csv.split(",") if name.strip()]
+    if not names:
+        return None
     lead = names[0]
     return lead[0].upper() + lead[1:] + " +" + str(len(names) - 1)
 
